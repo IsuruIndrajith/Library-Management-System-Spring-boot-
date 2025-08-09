@@ -1,8 +1,10 @@
 package com.example.LibraryManagementSystem.controller;
 
 import com.example.LibraryManagementSystem.dto.booksDTO;
+import com.example.LibraryManagementSystem.dto.responseDTO;
 import com.example.LibraryManagementSystem.service.booksService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,10 @@ public class booksController {
         try{
             String res=booksService.saveBook(booksDTO);
             if (res.equals("00")){
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(booksDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
 
             }else if(res.equals("06"){
 
