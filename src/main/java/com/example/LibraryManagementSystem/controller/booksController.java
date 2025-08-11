@@ -50,4 +50,38 @@ public class booksController {
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+    @PutMapping(value = "/updateBooks")
+    public ResponseEntity updateBooks(@RequestBody booksDTO booksDTO){
+        ResponseDTO responseDTO = new ResponseDTO(); // Create new instance for each request
+        try{
+            String res=booksService.updateBooks(booksDTO);
+            if (res.equals("00")){
+                responseDTO.setCode(varList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(booksDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.OK);
+
+            }else if(res.equals("06")){
+                responseDTO.setCode(varList.RSP_DUPLICATED);
+                responseDTO.setMessage("Book added");
+                responseDTO.setContent(booksDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.CONFLICT);
+
+            }else {
+                responseDTO.setCode(varList.RSP_FAIL);
+                responseDTO.setMessage("Error");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+        }catch(Exception ex){
+            responseDTO.setCode(varList.RSP_ERROR);
+            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
+

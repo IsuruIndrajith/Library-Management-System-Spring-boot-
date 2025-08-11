@@ -27,4 +27,14 @@ public class booksService {
         }
 
     }
+
+    public String updateBooks(booksDTO booksDTO){
+        if(booksRepo.existsById(booksDTO.getBook_id())){
+            booksRepo.save(modelMapper.map(booksDTO, books.class));
+            return varList.RSP_SUCCESS;
+        }
+        else{
+            return varList.RSP_NO_DATA_FOUND;
+        }
+    }
 }
