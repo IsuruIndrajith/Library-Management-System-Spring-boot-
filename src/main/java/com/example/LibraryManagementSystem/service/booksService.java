@@ -5,9 +5,13 @@ import com.example.LibraryManagementSystem.repo.booksRepo;
 import com.example.LibraryManagementSystem.dto.booksDTO;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.LibraryManagementSystem.util.varList;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -35,6 +39,21 @@ public class booksService {
         }
         else{
             return varList.RSP_NO_DATA_FOUND;
+        }
+    }
+
+    public List<booksDTO> getAllBooks(){
+        List<books> booksList = booksRepo.findAll();
+        return modelMapper.map(booksList, new TypeToken<ArrayList<booksDTO>>(){
+        }.getType());
+    }
+
+    public booksDTO searchBook(int bookID){
+        if (booksRepo.existsById(bookID)){
+            books book = booksRepo.findById(bookID).orElse(null);
+            return modelMapper.map(book, booksDTO.class);
+        }else {
+            return null;
         }
     }
 }
