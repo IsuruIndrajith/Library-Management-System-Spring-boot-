@@ -104,7 +104,7 @@ public class booksController {
 
     }
 
-    @GetMapping("/searchBooks{bookID}")
+    @GetMapping("/searchBooks/{bookID}")
     public ResponseEntity searchBook(@PathVariable int bookID){
         ResponseDTO responseDTO = new ResponseDTO();
         try{
@@ -113,10 +113,10 @@ public class booksController {
                 responseDTO.setCode(varList.RSP_SUCCESS);
                 responseDTO.setMessage("Success");
                 responseDTO.setContent(booksDTO);
-                return new  ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+                return new  ResponseEntity(responseDTO, HttpStatus.OK);
             }else {
                 responseDTO.setCode(varList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No Books found dor this bookID");
+                responseDTO.setMessage("No Books found for this bookID");
                 responseDTO.setContent(null);
                 return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
             }
@@ -130,6 +130,31 @@ public class booksController {
 
     }
 
+    @DeleteMapping("/deleteBooks/{bookID}")
+    public ResponseEntity deleteBook(@PathVariable int bookID){
+        ResponseDTO responseDTO = new ResponseDTO();
+        try{
+            String res = booksService.deleteBook(bookID);
+            if(res.equals("00")){
+                responseDTO.setCode(varList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(null);
+                return new  ResponseEntity(responseDTO, HttpStatus.OK);
+            }else {
+                responseDTO.setCode(varList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("No Books found for this bookID");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        }catch (Exception e){
+            responseDTO.setCode(varList.RSP_ERROR);
+            responseDTO.setMessage(e.getMessage());
+            responseDTO.setContent(e);
+            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
 }
 
