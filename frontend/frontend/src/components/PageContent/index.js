@@ -1,7 +1,9 @@
+import AppRoutes from "../AppRoutes";
+
 function PageContent() {
   return (
     <footer className="PageContent">
-      <AppRoutes></AppRoutes>
+      <AppRoutes/>
     </footer>
   );
 }

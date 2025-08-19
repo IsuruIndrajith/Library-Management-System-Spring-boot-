@@ -1,13 +1,12 @@
 import { Typography } from 'antd';
 import React from 'react'
 
-function Books() {
+function Reports() {
   return (
     <div>
-      <Typography.Text>Books</Typography.Text>
-    
+      <Typography.Text>Reports</Typography.Text>
     </div>
   )
 }
 
-export default Books;
+export default Reports;

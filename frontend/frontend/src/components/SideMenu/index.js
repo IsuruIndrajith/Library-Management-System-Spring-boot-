@@ -19,7 +19,7 @@ function SideMenu() {
           navigate(item.key)
         }}
         items={[
-          { label: "Dashboard", key: '/', icon: <DashboardOutlined /> },
+          { label: "Dashboard", key:'/', icon: <DashboardOutlined /> },
           { label: "Books", key: '/books', icon: <BookOutlined /> },
           { label: "Reports & Analysis", key: '/reports', icon: <BarChartOutlined /> },
           { label: "Lending & Transactions", key: '/lending', icon: <TransactionOutlined /> },

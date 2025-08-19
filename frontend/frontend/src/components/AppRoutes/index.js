@@ -1,9 +1,11 @@
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom';
 import Books from '../../Pages/Books';
 import Reports from '../../Pages/Reports';
 import Lending from '../../Pages/Lending';
 import Members from '../../Pages/Members';
+import Dashboard from '../../Pages/Dashboard';
+import { Routes } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 function AppRoutes() {
   return
