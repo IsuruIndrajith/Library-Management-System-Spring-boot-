@@ -8,7 +8,7 @@ import { Routes } from 'react-router-dom';
 import { Route } from 'react-router-dom';
 
 function AppRoutes() {
-  return
+  return(
   
     <Routes>
       <Route path="/" element={<Dashboard />} />
@@ -17,7 +17,7 @@ function AppRoutes() {
       <Route path="/lending" element={<Lending />} />
       <Route path="/members" element={<Members />} />
     </Routes>
-  
+  )
 }
 
 export default AppRoutes

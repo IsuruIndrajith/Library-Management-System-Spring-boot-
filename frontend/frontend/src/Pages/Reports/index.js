@@ -4,7 +4,8 @@ import React from 'react'
 function Reports() {
   return (
     <div>
-      <Typography.Text>Reports</Typography.Text>
+        
+          <Typography.Title level={3}>Reports</Typography.Title>
     </div>
   )
 }

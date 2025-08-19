@@ -4,7 +4,8 @@ import React from 'react'
 function Members() {
   return (
     <div>
-      <Typography.Text>Members</Typography.Text>
+      
+      <Typography.Title level={3}>Members</Typography.Title>
     </div>
   )
 }
