@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, Statistic, Space, Table } from 'antd';
 import { BookOutlined, InboxOutlined, ExportOutlined, TeamOutlined} from '@ant-design/icons'; 
-import { getRecentlyAddedBooks } from '../../API';
+import { getNewlyAddedBooks, getRecentlyAddedBooks } from '../../API';
 
 import {
   Chart as ChartJS,
@@ -24,11 +24,13 @@ ChartJS.register(
 );
 
 
+
+
 function Dashboard() {
   return (
     <div>
       <Typography.Title level={3}>Dashboard</Typography.Title>
-      <Space size={20} direction="vertical">
+      <Space size={20} direction="horizontal">
         <DashboardCard icon={<BookOutlined style={{color: "green", backgroundColor: "rgba(0,255,0,0.5)", borderRadius:20, fontSize:24, padding: 8}} />} title="Total Copies" value={1234} />
         <DashboardCard icon={<InboxOutlined style={{color: "blue", backgroundColor: "rgba(0,0,255,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} title="Available Copies" value={1234} />
         <DashboardCard icon={<ExportOutlined style={{color: "orange", backgroundColor: "rgba(255,165,0,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} title="Lent Copies" value={1234} />
@@ -94,47 +96,64 @@ function RecentBooks() {
     dataSource={dataSource}
     loading={loading}
     pagination={false}
-  >
+  />
 
     
-      </Table>
+
     </>
 
   )
 }
 
 function DashboardChart() {
-  const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'bottom'
-    },
-    title: {
-      display: true,
-      text: 'Books added',
-    },
-  },
-  };
-  
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+  const [RevenueData, setRevenueData] = useState({
+    labels: [],
+    datasets: [],
+  });
 
-  const data = {
+  useEffect(() => { 
+    getNewlyAddedBooks().then(res => {
+      const labels = res.carts.map(cart => {
+        return `User-${cart.userId}`
+      });
+
+      const data = res.carts.map(cart => {
+        return cart.discountedTotal;
+      });
+
+      const dataSource = {
   labels,
   datasets: [
     {
-      label: 'Dataset 1',
-      data: labels.map(() => Math.random()*1000),
+      label: 'Newly Added Books',
+      data: data,
       backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    },
-    {
-      label: 'Dataset 2',
-      data: labels.map(() => Math.random()*1000),
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-    },
+    }
+   
   ],
+      };
+      setRevenueData(dataSource);
+
+    })
+  }, []);
+
+const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "bottom"
+    },
+    title: {
+      display: true,
+      text: 'Newly added Books',
+    },
+  },
 };
-   return <Bar options={options} data={data} />;
+  
+  
+
+
+   return <Bar options={options} data={RevenueData} />;
 }
 
 export default Dashboard;
