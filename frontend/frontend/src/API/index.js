@@ -7,3 +7,12 @@ export const getNewlyAddedBooks = () => {
    return fetch('https://dummyjson.com/carts')
       .then(res => res.json());
 }
+
+// Books Page
+export const getBooks = () => {
+   return fetch('https://dummyjson.com/products')
+      .then(res => res.json())
+      
+}
+  
+             
