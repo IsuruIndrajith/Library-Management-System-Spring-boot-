@@ -24,3 +24,7 @@ public class books {
     private int copies_available;
 
 }
+
+public class members{
+    
+}

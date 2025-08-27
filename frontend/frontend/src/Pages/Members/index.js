@@ -147,7 +147,7 @@ function AddMember() {
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto" }}>
-      <h2>Add a Book</h2>
+      <h2>Add a Member</h2>
       <Form
         form={form}
         layout="vertical"
@@ -176,6 +176,14 @@ function AddMember() {
           rules={[{ required: true, message: "Please enter registration date" }]}
         >
           <Input placeholder="2023-01-01" />
+        </Form.Item>
+
+        <Form.Item
+          label="Contact Number"
+          name="contact_number"
+          rules={[{ required: true, message: "Please enter contact number" }]}
+        >
+          <Input placeholder="123-456-7890" />
         </Form.Item>
 
         <Form.Item>
@@ -255,6 +263,15 @@ function UpdateMember() {
           <Input placeholder="2023-01-01" />
         </Form.Item>
 
+        <Form.Item
+          label="Contact Number"
+          name="contact_number"
+          rules={[{ required: true, message: "Please enter contact number" }]}
+        >
+          <Input placeholder="123-456-7890" />
+        </Form.Item>
+
+
         <Form.Item>
           <Button type="primary" htmlType="submit" block>
             Update Member
@@ -276,7 +293,7 @@ function SearchMember() {
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto" }}>
-      <h2>Search a Book</h2>
+      <h2>Search a Member</h2>
       <Form
         form={form}
         layout="vertical"
@@ -303,6 +320,15 @@ function SearchMember() {
         >
           <Input placeholder="2023-01-01" />
         </Form.Item>
+
+        <Form.Item
+          label="Contact Number"
+          name="contact_number"
+          rules={[{ required: true, message: "Please enter contact number" }]}
+        >
+          <Input placeholder="123-456-7890" />
+        </Form.Item>
+
 
         <Form.Item>
           <Button type="primary" htmlType="submit" block>
