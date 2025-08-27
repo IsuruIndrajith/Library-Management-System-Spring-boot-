@@ -114,7 +114,7 @@ function DashboardChart() {
   useEffect(() => { 
     getNewlyAddedBooks().then(res => {
       const labels = res.carts.map(cart => {
-        return `User-${cart.userId}`
+        return `Book-${cart.userId}`
       });
 
       const data = res.carts.map(cart => {
@@ -153,7 +153,12 @@ const options = {
   
 
 
-   return <Bar options={options} data={RevenueData} />;
+  return(
+    <Card style={{width:500, height:350}}>
+    <Bar options={options} data={RevenueData} />
+  </Card>
+);
+
 }
 
 export default Dashboard;
