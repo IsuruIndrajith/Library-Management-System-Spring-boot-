@@ -22,7 +22,7 @@ function SideMenu() {
           { label: "Dashboard", key:'/', icon: <DashboardOutlined /> },
           { label: "Books", key: '/books', icon: <BookOutlined /> },
           { label: "Reports & Analysis", key: '/reports', icon: <BarChartOutlined /> },
-          { label: "Lending & Transactions", key: '/lending', icon: <TransactionOutlined /> },
+          { label: "Inventory Management", key: '/Inventory', icon: <TransactionOutlined /> },
           { label: "Member Management", key: '/members', icon: <TeamOutlined /> }
         ]}
       />
