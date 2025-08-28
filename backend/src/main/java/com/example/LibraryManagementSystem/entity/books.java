@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @AllArgsConstructor
@@ -25,6 +27,3 @@ public class books {
 
 }
 
-public class members{
-    
-}
