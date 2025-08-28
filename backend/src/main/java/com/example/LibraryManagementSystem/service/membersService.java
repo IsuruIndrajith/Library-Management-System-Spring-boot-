@@ -9,8 +9,4 @@ public class membersService {
     private membersRepo membersRepo;
 
 
-    public members updateMember(members member){
-        member.findById(member.getMemberId()).orElseThrow();
-        return member.save(member);
-    }
 }
