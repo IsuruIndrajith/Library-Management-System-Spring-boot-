@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Setter
 public class ResponseDTO {
     private String Code;
     private String Message;
