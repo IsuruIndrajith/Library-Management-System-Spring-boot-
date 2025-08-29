@@ -1,5 +1,5 @@
-import { Input,InputNumber ,message, Form, Tabs ,Carousel, Typography, Button, Card, Col, Row, Statistic, List } from "antd";
-import React, { useState, Select, useEffect } from "react";
+import { Input ,message, Form, Tabs ,Carousel, Typography, Button, Card, Col, Row, Statistic, List } from "antd";
+import React, { useState, useEffect } from "react";
 import "antd/dist/reset.css";
 import {
   ArrowDownOutlined,

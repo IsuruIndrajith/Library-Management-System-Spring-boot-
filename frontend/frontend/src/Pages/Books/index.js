@@ -1,4 +1,4 @@
-import { Typography, Space, Table, Rate } from 'antd';
+import { Typography, Space, Table } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { getBooks } from '../../API';
 
