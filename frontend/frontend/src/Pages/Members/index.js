@@ -1,11 +1,13 @@
-import { Input,InputNumber, Form, Tabs ,Carousel, Typography, Button, Card, Col, Row, Statistic } from "antd";
-import React, { useState, Select, useEffect } from "react";
+import { Input ,message, Form, Tabs ,Carousel, Typography, Button, Card, Col, Row, Statistic, List } from "antd";
+import React, { useState, useEffect } from "react";
 import "antd/dist/reset.css";
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
   LikeOutlined,
 } from "@ant-design/icons";
+import { addMember, deleteMember, updateMember, getMemberById, getAllMembers } from "../../API";
+
 
 const { Title, Paragraph } = Typography;
 
@@ -138,15 +140,53 @@ function FeedbackView() {
 
 function AddMember() {
   const [form] = Form.useForm();
+  const [members, setMembers] = useState([]);
 
-  const onFinish = (values) => {
-    console.log("Member data:", values);
-    // Here you’d send values to your backend API
-    // fetch("/api/books", { method: "POST", body: JSON.stringify(values) })
+  // ✅ AntD message hook
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const onFinish = async (values) => {
+    try {
+      const memberData = {
+        id: values.id,
+        name: values.name,
+        registrationDate: values.registrationDate,
+        contactNo: values.contactNo,
+      };
+
+      const res = await addMember(memberData);
+
+      if (res.status === 200 || res.status === 201) {
+        messageApi.open({
+          type: "success",
+          content: "✅ Member added successfully!",
+          style: { marginTop: "15vh" },
+        });
+
+        form.resetFields();
+        setMembers((prev) => [...prev, res.data]); // add new member to state
+      } else {
+        messageApi.open({
+          type: "error",
+          content: "Failed to add member",
+          style: { marginTop: "15vh" },
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      messageApi.open({
+        type: "error",
+        content: "❌ Error adding member",
+        style: { marginTop: "15vh" },
+      });
+    }
   };
+
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      {/* ✅ must render this once */}
+      {contextHolder}
       <h2>Add a Member</h2>
       <Form
         form={form}
@@ -162,17 +202,11 @@ function AddMember() {
           <Input placeholder="John Doe" />
         </Form.Item>
 
-        <Form.Item
-          label="ID"
-          name="id"
-          rules={[{ required: true, message: "Please enter member ID" }]}
-        >
-          <Input placeholder="12345" />
-        </Form.Item>
+        
 
         <Form.Item
           label="Registration date"
-          name="registration_date"
+          name="registrationDate"
           rules={[{ required: true, message: "Please enter registration date" }]}
         >
           <Input placeholder="2023-01-01" />
@@ -180,7 +214,7 @@ function AddMember() {
 
         <Form.Item
           label="Contact Number"
-          name="contact_number"
+          name="contactNo"
           rules={[{ required: true, message: "Please enter contact number" }]}
         >
           <Input placeholder="123-456-7890" />
@@ -199,14 +233,56 @@ function AddMember() {
 
 
 function RemoveMember() {
+  const [form] = Form.useForm();
+
+  // ✅ AntD message hook
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const onFinish = async (values) => {
+    try {
+      const memberId = values.id;
+
+      const res = await deleteMember(memberId);
+
+      if (res.status === 200 || res.status === 204) {
+        messageApi.open({
+          type: "success",
+          content: `✅ Member with ID ${memberId} removed successfully!`,
+          style: { marginTop: "15vh" },
+        });
+
+        form.resetFields();
+      } else {
+        messageApi.open({
+          type: "error",
+          content: `Failed to remove member with ID ${memberId}`,
+          style: { marginTop: "15vh" },
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      messageApi.open({
+        type: "error",
+        content: `❌ Error removing member with ID ${values.member_id}`,
+        style: { marginTop: "15vh" },
+      });
+    }
+  };
 
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+     <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      {/* ✅ must render this once */}
+      {contextHolder}
       <h2>Remove a Member</h2>
-      <Form layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        autoComplete="off"
+      >
         <Form.Item
           label="Member ID"
-          name="member_id"
+          name="id"
           rules={[{ required: true, message: "Please enter Member ID" }]}
         >
           <Input placeholder="12345" />
@@ -225,13 +301,48 @@ function RemoveMember() {
 function UpdateMember() {
   const [form] = Form.useForm();
 
-  const onFinish = (values) => {
-    console.log("Member data:", values);
-    // Here you’d send values to your backend API
-    // fetch("/api/books", { method: "POST", body: JSON.stringify(values) })
+  // ✅ AntD message hook
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const onFinish = async (values) => {
+    try {
+      const memberId = values.id;
+      const memberData = {
+        name: values.name,
+        registrationDate: values.registration_date,
+        contactNo: values.contact_number,
+      };
+
+      const res = await updateMember(memberId, memberData);
+
+      if (res.status === 200) {
+        messageApi.open({
+          type: "success",
+          content: `✅ Member with ID ${memberId} updated successfully!`,
+          style: { marginTop: "15vh" },
+        });
+
+        form.resetFields();
+      } else {
+        messageApi.open({
+          type: "error",
+          content: `Failed to update member with ID ${memberId}`,
+          style: { marginTop: "15vh" },
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      messageApi.open({
+        type: "error",
+        content: `❌ Error updating member with ID ${values.id}`,
+        style: { marginTop: "15vh" },
+      });
+    }
   };
+
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+     <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      {contextHolder}
       <h2>Update a Member</h2>
       <Form
         form={form}
@@ -284,15 +395,54 @@ function UpdateMember() {
 
 function SearchMember() {
   const [form] = Form.useForm();
+  const [member, setMember] = useState(null);
 
-  const onFinish = (values) => {
-    console.log("Search criteria:", values);
-    // Here you’d send values to your backend API
-    // fetch("/api/books/search", { method: "POST", body: JSON.stringify(values) })
+   // ✅ AntD message hook
+  const [messageApi, contextHolder] = message.useMessage();
+
+   const onFinish = async (values) => {
+    try {
+      if (!values.id) {
+        messageApi.open({
+          type: "warning",
+          content: "⚠️ Please enter a Member ID",
+          style: { marginTop: "15vh" },
+        });
+        return;
+      }
+
+      const res = await getMemberById(values.id);
+
+      if (res.status === 200) {
+        setMember(res.data);
+        messageApi.open({
+          type: "success",
+          content: `✅ Member with ID ${values.id} found!`,
+          style: { marginTop: "15vh" },
+        });
+      } else {
+        setMember(null);
+        messageApi.open({
+          type: "error",
+          content: `❌ Member with ID ${values.id} not found`,
+          style: { marginTop: "15vh" },
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setMember(null);
+      messageApi.open({
+        type: "error",
+        content: `❌ Error searching member with ID ${values.id}`,
+        style: { marginTop: "15vh" },
+      });
+    }
   };
+
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      {contextHolder}
       <h2>Search a Member</h2>
       <Form
         form={form}
@@ -303,30 +453,9 @@ function SearchMember() {
         <Form.Item
           label="ID"
           name="id"
+          rules={[{ required: true, message: "Please enter Member ID" }]}
         >
           <Input placeholder="12345" />
-        </Form.Item>
-
-        <Form.Item
-          label="Name"
-          name="name"
-        >
-          <Input placeholder="John Doe" />
-        </Form.Item>
-
-        <Form.Item
-          label="Registration date"
-          name="registration_date"
-        >
-          <Input placeholder="2023-01-01" />
-        </Form.Item>
-
-        <Form.Item
-          label="Contact Number"
-          name="contact_number"
-          rules={[{ required: true, message: "Please enter contact number" }]}
-        >
-          <Input placeholder="123-456-7890" />
         </Form.Item>
 
 
@@ -336,34 +465,78 @@ function SearchMember() {
           </Button>
         </Form.Item>
       </Form>
+      {/* Display search result */}
+      {member && (
+        <Card
+          title={`Member ID: ${member.id}`}
+          style={{ marginTop: 20 }}
+        >
+          <p><strong>Name:</strong> {member.name}</p>
+          <p><strong>Registration Date:</strong> {member.registrationDate}</p>
+          <p><strong>Contact No:</strong> {member.contactNo}</p>
+        </Card>
+      )}
+
+
     </div>
   );
 }
 
 function GetAllMembers() {
   const [members, setMembers] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const fetchMembers = async () => {
-      const response = await fetch("/api/members");
-      const data = await response.json();
-      setMembers(data);
+      try {
+        const res = await getAllMembers(); // Axios GET request
+        if (res.status === 200) {
+          setMembers(res.data);
+        } else {
+          messageApi.open({
+            type: "error",
+            content: "❌ Failed to fetch members",
+            style: { marginTop: "15vh" },
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        messageApi.open({
+          type: "error",
+          content: "❌ Error fetching members",
+          style: { marginTop: "15vh" },
+        });
+      }
     };
 
     fetchMembers();
   }, []);
 
   return (
-    <div>
+    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      {contextHolder}
       <h2>All Members</h2>
-      <ul>
-        {members.map((member) => (
-          <li key={member.id}>{member.name} - {member.registration_date}</li>
-        ))}
-      </ul>
+      {members.length === 0 ? (
+        <p>No members found.</p>
+      ) : (
+        <List
+          grid={{ gutter: 16, column: 1 }}
+          dataSource={members}
+          renderItem={(member) => (
+            <List.Item>
+              <Card title={`ID: ${member.id}`}>
+                <p><strong>Name:</strong> {member.name}</p>
+                <p><strong>Registration Date:</strong> {member.registrationDate}</p>
+                <p><strong>Contact No:</strong> {member.contactNo}</p>
+              </Card>
+            </List.Item>
+          )}
+        />
+      )}
     </div>
   );
 }
+
 
 const App = () => (
   <>

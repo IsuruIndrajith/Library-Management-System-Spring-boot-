@@ -12,12 +12,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("api/v1/members")
 public class membersController {
 
     @Autowired
     membersRepo repo;
 //    `localhost:8080/members
-    @GetMapping("/members")
+    @GetMapping("/getAllMembers")
     public ResponseEntity<List<members>> getAllMembers(){
       try{
           List<members> membersList = new ArrayList<>();
@@ -35,7 +36,7 @@ public class membersController {
     }
 
 //    localhost:8080/members/1
-    @GetMapping("/members/{id:\\d+}")
+    @GetMapping("/GetMembersByID/{id:\\d+}")
     public ResponseEntity<members> getMember(@PathVariable int id){
         Optional<members> memberData = repo.findById(id);
 
@@ -45,7 +46,7 @@ public class membersController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/members/add")
+    @PostMapping("/add")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<members> createMember(@RequestBody members member){
         members memberObj = repo.save(member);
@@ -53,7 +54,7 @@ public class membersController {
         return new ResponseEntity<>(memberObj, HttpStatus.OK);
     }
 
-    @PutMapping("/members/update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<members> updateMembers(@PathVariable int id, @RequestBody members newMemberData){
         Optional<members> oldMemberData = repo.findById(id);
 
@@ -72,7 +73,7 @@ public class membersController {
 
     }
 
-    @DeleteMapping("/members/deleteMemberById/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteMember(@PathVariable int id){
         if (repo.existsById(id)){
             repo.deleteById(id);

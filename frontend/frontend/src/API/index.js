@@ -31,4 +31,16 @@ export const searchBook = (bookID) => axios.get(`${BASE_URL}/searchBooks/${bookI
 
 export const getAllBooks = () => axios.get(`${BASE_URL}/getAllBooks`);
 
-             
+
+const BASE_URL_Member = "http://localhost:8080/api/v1/members";
+export const getAllMembers = () => axios.get(`${BASE_URL_Member}/getAllMembers`);
+
+export const getMemberById = (id) => axios.get(`${BASE_URL_Member}/GetMembersByID/${id}`);
+
+export const addMember = (member) => axios.post(`${BASE_URL_Member}/add`, member);
+
+export const updateMember = (id, member) =>
+  axios.put(`${BASE_URL_Member}/update/${id}`, member);
+
+export const deleteMember = (id) =>
+  axios.delete(`${BASE_URL_Member}/delete/${id}`);
