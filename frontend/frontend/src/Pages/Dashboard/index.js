@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, Statistic, Space, Table } from 'antd';
 import { BookOutlined, InboxOutlined, ExportOutlined, TeamOutlined} from '@ant-design/icons'; 
-import { getNewlyAddedBooks, getRecentlyAddedBooks } from '../../API';
+import { getBooks } from '../../API';
 
 import {
   Chart as ChartJS,
@@ -51,7 +51,7 @@ function Dashboard() {
 
 function DashboardCard({ title, value, icon }) { 
   return (
-    <Card>
+    <Card align="middle">
       <Space direction="vertical" align='center'>
         {icon}
         <Statistic title={title} value={value} />
@@ -65,8 +65,9 @@ function RecentBooks() {
   const [loading, setLoading] = useState(false)
   useEffect(() => {
     setLoading(true)
-    getRecentlyAddedBooks().then(res => {
-      setDataSource(res.products.slice(0, 5));
+    getBooks().then(res => {
+      const books = res.content || [];
+      setDataSource(books.slice(-3)); // last 3
       setLoading(false);
     });
   }, []);
@@ -76,21 +77,25 @@ function RecentBooks() {
       <Typography.Text>Recently Added Books</Typography.Text>
       
       <Table
-        rowKey="id"
+        rowKey="book_id"
        columns={[
       {
-        title: "title",
+        title: "Title",
         dataIndex: "title",
       },
       {
-        title: "Rating",
-        dataIndex: 'rating',
+        title: "ISBN",
+        dataIndex: 'isbn',
       
       },
       {
-        title: "Brand",
-        dataIndex: 'brand',
+        title: "Author",
+        dataIndex: 'author',
+      },
       
+      {
+        title: "Genre",
+        dataIndex: 'genre',
       },
     ]}
     dataSource={dataSource}
@@ -106,59 +111,50 @@ function RecentBooks() {
 }
 
 function DashboardChart() {
-  const [RevenueData, setRevenueData] = useState({
+  const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
   });
 
   useEffect(() => { 
-    getNewlyAddedBooks().then(res => {
-      const labels = res.carts.map(cart => {
-        return `Book-${cart.userId}`
+    getBooks().then(res => {
+      const books = res.content || [];
+      
+      // count books per genre
+      const genreCounts = books.reduce((acc, book) => {
+        acc[book.genre] = (acc[book.genre] || 0) + 1;
+        return acc;
+      }, {});
+
+      const labels = Object.keys(genreCounts);
+      const data = Object.values(genreCounts);
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: "Books per Genre",
+            data: data,
+            backgroundColor: "rgba(75, 192, 192, 0.5)",
+          },
+        ],
       });
-
-      const data = res.carts.map(cart => {
-        return cart.discountedTotal;
-      });
-
-      const dataSource = {
-  labels,
-  datasets: [
-    {
-      label: 'Newly Added Books',
-      data: data,
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    }
-   
-  ],
-      };
-      setRevenueData(dataSource);
-
-    })
+    });
   }, []);
 
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "bottom"
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { position: "bottom" },
+      title: { display: true, text: "Books by Genre" },
     },
-    title: {
-      display: true,
-      text: 'Newly added Books',
-    },
-  },
-};
-  
-  
+  };
 
-
-  return(
-    <Card style={{width:500, height:350}}>
-    <Bar options={options} data={RevenueData} />
-  </Card>
-);
-
+  return (
+    <Card style={{ width: 500, height: 350 }}>
+      <Bar options={options} data={chartData} />
+    </Card>
+  );
 }
 
 export default Dashboard;
