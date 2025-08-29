@@ -8,10 +8,10 @@ function Books() {
 
   useEffect(() => { 
     setloading(true)
-    getBooks().then(res =>{ 
-      setDataSource(res.products);
-      setloading(false)
-    })
+    getBooks().then(res => { 
+    setDataSource(res.content);  // backend sends array inside 'content'
+    setloading(false);
+})
 
    }, [])
   return (
@@ -27,27 +27,31 @@ function Books() {
             },
             {
               title: "Book ID",
-              dataIndex: "id",
+              dataIndex: "book_id",
             },
             {
-              title: "Price",
-              dataIndex: "price",
-              render: (value) => <span>${value}</span>
+              title: "isbn",
+              dataIndex: "isbn",
+              // render: (value) => <span>${value}</span>
             },
             {
-              title: "Rating",
-              dataIndex: "rating",
-              render: (value) => { 
-                return <Rate value={value} allowHalf />
-              }
+              title: "Author",
+              dataIndex: "author",
+              // render: (value) => { 
+                // return <Rate value={value} allowHalf />
+              // }
             },
             {
-              title: "Stock",
-              dataIndex: "stock",
+              title: "Publisher",
+              dataIndex: "publisher",
             },
             {
-              title: "Category",
-              dataIndex: "category",
+              title: "Published Year",
+              dataIndex: "year_published",
+            },
+            {
+              title: "Genre",
+              dataIndex: "genre",
             }
           ]
         }
