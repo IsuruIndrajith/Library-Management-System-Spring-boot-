@@ -5,15 +5,11 @@ import com.example.LibraryManagementSystem.dto.ResponseDTO;
 import com.example.LibraryManagementSystem.util.varList;
 import com.example.LibraryManagementSystem.service.booksService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
-
 
 @RestController
 @RequestMapping("api/v1/books")
@@ -22,31 +18,23 @@ public class booksController {
     @Autowired
     private booksService booksService;
 
-
     @PostMapping("/saveBooks")
     public ResponseEntity<ResponseDTO> saveBooks(@RequestBody booksDTO booksDTO) {
-        ResponseDTO responseDTO = new ResponseDTO(); // Create new instance for each request
+        ResponseDTO responseDTO = new ResponseDTO();
 
         try {
-            String res = booksService.saveBook(booksDTO);
+            booksDTO savedBook = booksService.saveBook(booksDTO);
 
-            if (res.equals(varList.RSP_SUCCESS)) {
+            if (savedBook != null) {
                 responseDTO.setCode(varList.RSP_SUCCESS);
                 responseDTO.setMessage("Book saved successfully.");
-                responseDTO.setContent(booksDTO);
+                responseDTO.setContent(savedBook);
                 return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-            } else if (res.equals(varList.RSP_DUPLICATED)) {
+            } else {
                 responseDTO.setCode(varList.RSP_DUPLICATED);
                 responseDTO.setMessage("Book already exists.");
                 responseDTO.setContent(booksDTO);
                 return new ResponseEntity<>(responseDTO, HttpStatus.CONFLICT);
-
-            } else {
-                responseDTO.setCode(varList.RSP_FAIL);
-                responseDTO.setMessage("Failed to save book.");
-                responseDTO.setContent(null);
-                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
 
         } catch (Exception ex) {
@@ -57,108 +45,95 @@ public class booksController {
         }
     }
 
+    @PutMapping("/updateBooks")
+    public ResponseEntity<ResponseDTO> updateBooks(@RequestBody booksDTO booksDTO) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        try {
+            booksDTO updatedBook = booksService.updateBooks(booksDTO);
 
-
-    @PutMapping(value = "/updateBooks")
-    public ResponseEntity updateBooks(@RequestBody booksDTO booksDTO){
-        ResponseDTO responseDTO = new ResponseDTO(); // Create new instance for each request
-        try{
-            String res=booksService.updateBooks(booksDTO);
-            if (res.equals("00")){
+            if (updatedBook != null) {
                 responseDTO.setCode(varList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(booksDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.OK);
-
-            }else if(res.equals("06")){
-                responseDTO.setCode(varList.RSP_DUPLICATED);
-                responseDTO.setMessage("Book added");
-                responseDTO.setContent(booksDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.CONFLICT);
-
-            }else {
-                responseDTO.setCode(varList.RSP_FAIL);
-                responseDTO.setMessage("Error");
+                responseDTO.setMessage("Book updated successfully.");
+                responseDTO.setContent(updatedBook);
+                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            } else {
+                responseDTO.setCode(varList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("No book found to update.");
                 responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
-        }catch(Exception ex){
+
+        } catch (Exception ex) {
             responseDTO.setCode(varList.RSP_ERROR);
-            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setMessage("Error: " + ex.getMessage());
             responseDTO.setContent(null);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/getAllBooks")
-    public ResponseEntity getAllEmployees(){
+    public ResponseEntity<ResponseDTO> getAllBooks() {
         ResponseDTO responseDTO = new ResponseDTO();
         try {
             List<booksDTO> booksDTOList = booksService.getAllBooks();
             responseDTO.setCode(varList.RSP_SUCCESS);
             responseDTO.setMessage("Success");
             responseDTO.setContent(booksDTOList);
-            return new ResponseEntity(responseDTO, HttpStatus.OK);
-
-        }catch (Exception ex){
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        } catch (Exception ex) {
             responseDTO.setCode(varList.RSP_ERROR);
-            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setMessage("Error: " + ex.getMessage());
             responseDTO.setContent(null);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @GetMapping("/searchBooks/{bookID}")
-    public ResponseEntity searchBook(@PathVariable int bookID){
+    public ResponseEntity<ResponseDTO> searchBook(@PathVariable int bookID) {
         ResponseDTO responseDTO = new ResponseDTO();
-        try{
-            booksDTO booksDTO = booksService.searchBook(bookID);
-            if(booksDTO !=null){
+        try {
+            booksDTO book = booksService.searchBook(bookID);
+            if (book != null) {
                 responseDTO.setCode(varList.RSP_SUCCESS);
                 responseDTO.setMessage("Success");
-                responseDTO.setContent(booksDTO);
-                return new  ResponseEntity(responseDTO, HttpStatus.OK);
-            }else {
+                responseDTO.setContent(book);
+                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            } else {
                 responseDTO.setCode(varList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No Books found for this bookID");
+                responseDTO.setMessage("No Book found for this ID.");
                 responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
-
-        }catch (Exception e){
+        } catch (Exception e) {
             responseDTO.setCode(varList.RSP_ERROR);
-            responseDTO.setMessage(e.getMessage());
-            responseDTO.setContent(e);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            responseDTO.setMessage("Error: " + e.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @DeleteMapping("/deleteBooks/{bookID}")
-    public ResponseEntity deleteBook(@PathVariable int bookID){
+    public ResponseEntity<ResponseDTO> deleteBook(@PathVariable int bookID) {
         ResponseDTO responseDTO = new ResponseDTO();
-        try{
+        try {
             String res = booksService.deleteBook(bookID);
-            if(res.equals("00")){
+
+            if (res.equals(varList.RSP_SUCCESS)) {
                 responseDTO.setCode(varList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
+                responseDTO.setMessage("Book deleted successfully.");
                 responseDTO.setContent(null);
-                return new  ResponseEntity(responseDTO, HttpStatus.OK);
-            }else {
+                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            } else {
                 responseDTO.setCode(varList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No Books found for this bookID");
+                responseDTO.setMessage("No Book found with this ID.");
                 responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
-
-        }catch (Exception e){
+        } catch (Exception e) {
             responseDTO.setCode(varList.RSP_ERROR);
-            responseDTO.setMessage(e.getMessage());
-            responseDTO.setContent(e);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            responseDTO.setMessage("Error: " + e.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
-
 }
-
