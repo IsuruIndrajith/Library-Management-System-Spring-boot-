@@ -1,4 +1,4 @@
-# Library Management System with JWT Authentication
+# ShelfMaster Library Management System with JWT Authentication
 
 This is a complete Library Management System built with Spring Boot (backend) and React (frontend) featuring JWT authentication, CRUD operations for books and members, comprehensive testing, and Redis caching.
 
@@ -6,12 +6,12 @@ This is a complete Library Management System built with Spring Boot (backend) an
 
 ### Backend Features
 - **JWT Authentication**: Secure user authentication with JSON Web Tokens
-- **Spring Security**: Role-based access control (USER, ADMIN, LIBRARIAN)
+- **Spring Security**: Role-based access control (for ADMIN)
 - **CRUD Operations**: Complete Create, Read, Update, Delete operations for:
   - Books management
   - Members management
 - **Redis Caching**: Improved performance with Redis caching for books
-- **Comprehensive Testing**: Unit tests and integration tests with high coverage
+- **Comprehensive Testing**: Unit tests with high coverage
 - **RESTful API**: Well-structured REST endpoints
 - **Database Support**: MySQL for production, H2 for testing
 
@@ -73,8 +73,6 @@ LibraryManagementSystem/
 The system implements a complete JWT authentication system:
 
 ### User Roles
-- **USER**: Basic access to view books and members
-- **LIBRARIAN**: Can manage books and members
 - **ADMIN**: Full system access
 
 ### Security Features
@@ -120,11 +118,6 @@ The project includes comprehensive testing:
 - **Repository Tests**: Database operations testing
 - **Utility Tests**: JWT utilities and helper functions
 
-### Integration Tests
-- **Controller Tests**: Full API endpoint testing with security
-- **Authentication Tests**: Complete auth flow testing
-- **Database Integration**: End-to-end database operations
-
 ### Test Coverage
 - Books Service: 11 test methods covering all CRUD operations
 - Authentication: Complete auth flow testing
@@ -143,7 +136,7 @@ The project includes comprehensive testing:
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/IsuruIndrajith/Library-Management-System-Spring-boot-.git
    cd LibraryManagementSystem/backend
    ```
 
@@ -196,10 +189,9 @@ The frontend will be available at `http://localhost:3000`
 curl -X POST http://localhost:8080/api/v1/auth/signup \
 -H "Content-Type: application/json" \
 -d '{
-  "username": "librarian1",
-  "email": "librarian@library.com",
-  "password": "password123",
-  "role": "LIBRARIAN"
+  "username": "Admin01",
+  "email": "admin01@example.com",
+  "password": "password123"
 }'
 ```
 
@@ -208,7 +200,7 @@ curl -X POST http://localhost:8080/api/v1/auth/signup \
 curl -X POST http://localhost:8080/api/v1/auth/signin \
 -H "Content-Type: application/json" \
 -d '{
-  "username": "librarian1",
+  "username": "Admin01",
   "password": "password123"
 }'
 ```
@@ -231,7 +223,7 @@ curl -X POST http://localhost:8080/api/v1/books/saveBooks \
   "publisher": "Prentice Hall",
   "yearPublished": 2008,
   "genre": "Programming",
-  "copiesTotal": 10,
+  "copiesTotal": 8,
   "copiesAvailable": 8
 }'
 ```
@@ -264,7 +256,7 @@ spring.cache.type=redis
 6. Configure logging levels
 7. Set up monitoring
 
-### Docker Deployment (Optional)
+### Docker Deployment for Redis implementation
 The project includes `compose.yml` for easy Docker deployment:
 ```bash
 docker-compose up -d
@@ -339,7 +331,7 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 Author
 
-Created by [Your Name] - Full Stack Developer
+Created by isuru indrajith - Full Stack Developer
 
 ---
 
