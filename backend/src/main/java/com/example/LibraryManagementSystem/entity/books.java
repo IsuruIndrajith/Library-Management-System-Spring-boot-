@@ -14,7 +14,7 @@ public class books {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "book_id")
+
     private Integer bookId;
 
     private String isbn;
@@ -22,9 +22,9 @@ public class books {
     private String author;
     private String publisher;
 
-    @Column(name = "year_published")
-    private int yearPublished;
+
+    private Integer yearPublished;
     private String genre;
-    private int copiesTotal;
-    private int copiesAvailable;
+    private Integer copiesTotal;
+    private Integer copiesAvailable;
 }

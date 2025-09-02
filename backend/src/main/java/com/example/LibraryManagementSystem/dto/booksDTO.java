@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class booksDTO {
 
-
+    @JsonProperty("book_id")
     private Integer bookId;
 
     private String isbn;
@@ -18,6 +18,7 @@ public class booksDTO {
     private String author;
     private String publisher;
 
+    @JsonProperty("year_published")
     private Integer yearPublished;
 
     private String genre;

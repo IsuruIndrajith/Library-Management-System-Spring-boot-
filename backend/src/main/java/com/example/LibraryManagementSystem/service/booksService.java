@@ -99,6 +99,13 @@ public class booksService {
         b.setGenre(dto.getGenre());
         b.setCopiesTotal(dto.getCopiesTotal());
         b.setCopiesAvailable(dto.getCopiesAvailable());
+
+        // Use safe conversion for nullable integers
+        b.setYearPublished(dto.getYearPublished() != null ? dto.getYearPublished() : 0);
+        b.setCopiesTotal(dto.getCopiesTotal() != null ? dto.getCopiesTotal() : 0);
+        b.setCopiesAvailable(dto.getCopiesAvailable() != null ? dto.getCopiesAvailable() : 0);
+
+        b.setGenre(dto.getGenre());
         return b;
     }
 }
