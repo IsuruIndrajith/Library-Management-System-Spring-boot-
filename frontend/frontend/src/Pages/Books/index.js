@@ -27,7 +27,7 @@ function Books() {
             },
             {
               title: "Book ID",
-              dataIndex: "book_id",
+              dataIndex: "bookId",
             },
             {
               title: "isbn",
@@ -47,7 +47,7 @@ function Books() {
             },
             {
               title: "Published Year",
-              dataIndex: "year_published",
+              dataIndex: "yearPublished",
             },
             {
               title: "Genre",
