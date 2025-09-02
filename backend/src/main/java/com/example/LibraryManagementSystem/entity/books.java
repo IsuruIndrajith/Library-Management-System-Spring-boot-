@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.*;
-import java.time.LocalDate;
 
 @Entity
 @AllArgsConstructor
@@ -13,17 +11,20 @@ import java.time.LocalDate;
 @Data
 @Table(name = "Books")
 public class books {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //here the primary key is auto generated when a new row is inserted
-    private int book_id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "book_id")
+    private Integer bookId;
+
     private String isbn;
     private String title;
     private String author;
     private String publisher;
-    private int year_published;
+
+    @Column(name = "year_published")
+    private int yearPublished;
     private String genre;
-    private int copies_total;
-    private int copies_available;
-
+    private int copiesTotal;
+    private int copiesAvailable;
 }
-
