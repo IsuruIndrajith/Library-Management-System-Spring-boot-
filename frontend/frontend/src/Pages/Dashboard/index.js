@@ -27,14 +27,68 @@ ChartJS.register(
 
 
 function Dashboard() {
+  const [stats, setStats] = useState({
+    totalCopies: 0,
+    availableCopies: 0,
+    lentCopies: 0,
+    members: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const booksResponse = await getBooks();
+        const books = booksResponse.content || [];
+        
+        const totalCopies = books.reduce((sum, book) => sum + (book.copies_total || 0), 0);
+        const availableCopies = books.reduce((sum, book) => sum + (book.copies_available || 0), 0);
+        const lentCopies = totalCopies - availableCopies;
+        
+        setStats({
+          totalCopies,
+          availableCopies,
+          lentCopies,
+          members: 0 // We don't have members API integrated yet
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div>
       <Typography.Title level={3}>Dashboard</Typography.Title>
       <Space size={20} direction="horizontal">
-        <DashboardCard icon={<BookOutlined style={{color: "green", backgroundColor: "rgba(0,255,0,0.5)", borderRadius:20, fontSize:24, padding: 8}} />} title="Total Copies" value={1234} />
-        <DashboardCard icon={<InboxOutlined style={{color: "blue", backgroundColor: "rgba(0,0,255,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} title="Available Copies" value={1234} />
-        <DashboardCard icon={<ExportOutlined style={{color: "orange", backgroundColor: "rgba(255,165,0,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} title="Lent Copies" value={1234} />
-        <DashboardCard icon={<TeamOutlined style={{color: "purple", backgroundColor: "rgba(128,0,128,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} title="Members" value={1234} />
+        <DashboardCard 
+          icon={<BookOutlined style={{color: "green", backgroundColor: "rgba(0,255,0,0.5)", borderRadius:20, fontSize:24, padding: 8}} />} 
+          title="Total Copies" 
+          value={loading ? 0 : stats.totalCopies} 
+          loading={loading}
+        />
+        <DashboardCard 
+          icon={<InboxOutlined style={{color: "blue", backgroundColor: "rgba(0,0,255,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} 
+          title="Available Copies" 
+          value={loading ? 0 : stats.availableCopies} 
+          loading={loading}
+        />
+        <DashboardCard 
+          icon={<ExportOutlined style={{color: "orange", backgroundColor: "rgba(255,165,0,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} 
+          title="Lent Copies" 
+          value={loading ? 0 : stats.lentCopies} 
+          loading={loading}
+        />
+        <DashboardCard 
+          icon={<TeamOutlined style={{color: "purple", backgroundColor: "rgba(128,0,128,0.5)", borderRadius:20,  fontSize:24, padding:8}} />} 
+          title="Members" 
+          value={loading ? 0 : stats.members} 
+          loading={loading}
+        />
 
       </Space>
 
