@@ -5,8 +5,6 @@ import com.example.LibraryManagementSystem.entity.books;
 import com.example.LibraryManagementSystem.repo.booksRepo;
 import com.example.LibraryManagementSystem.util.varList;
 import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -23,51 +21,84 @@ public class booksService {
     @Autowired
     private booksRepo booksRepo;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    @CachePut(value = "BOOKS_CACHE", key = "#result.book_id")
-    public booksDTO saveBook(booksDTO booksDTO) {
-        if (booksRepo.existsById(booksDTO.getBook_id())) {
-            return null; // controller will return 409 Conflict
-        } else {
-            books saved = booksRepo.save(modelMapper.map(booksDTO, books.class));
-            return modelMapper.map(saved, booksDTO.class);
-        }
-    }
-
-    @CachePut(value = "BOOKS_CACHE", key = "#result.book_id")
-    public booksDTO updateBooks(booksDTO booksDTO) {
-        if (booksRepo.existsById(booksDTO.getBook_id())) {
-            books saved = booksRepo.save(modelMapper.map(booksDTO, books.class));
-            return modelMapper.map(saved, booksDTO.class);
-        } else {
-            return null; // controller will return 404 Not Found
-        }
-    }
-
-    // Cache single book lookups
-    @Cacheable(value = "BOOKS_CACHE", key = "#bookID")
-    public booksDTO searchBook(int bookID) {
-        books book = booksRepo.findById(bookID).orElse(null);
-        return book != null ? modelMapper.map(book, booksDTO.class) : null;
-    }
-
-    // Cache all books with a fixed key
+    // ------------------- GET ALL BOOKS -------------------
     @Cacheable(value = "BOOKS_CACHE", key = "'allBooks'")
     public List<booksDTO> getAllBooks() {
         List<books> booksList = booksRepo.findAll();
-        return modelMapper.map(booksList, new TypeToken<ArrayList<booksDTO>>() {
-        }.getType());
+        List<booksDTO> dtoList = new ArrayList<>();
+
+        for (books b : booksList) {
+            dtoList.add(mapToDTO(b));
+        }
+
+        return dtoList;
     }
 
+    // ------------------- GET SINGLE BOOK -------------------
+    @Cacheable(value = "BOOKS_CACHE", key = "#bookID")
+    public booksDTO searchBook(int bookID) {
+        return booksRepo.findById(bookID)
+                .map(this::mapToDTO)
+                .orElse(null);
+    }
+
+    // ------------------- SAVE BOOK -------------------
+    @CachePut(value = "BOOKS_CACHE", key = "#result.bookId")
+    public booksDTO saveBook(booksDTO booksDTO) {
+        // Only check existsById if DTO has an ID (update-like case)
+        if (booksDTO.getBookId() != null && booksRepo.existsById(booksDTO.getBookId())) {
+            return null; // already exists
+        }
+
+        books saved = booksRepo.save(mapToEntity(booksDTO));
+        return mapToDTO(saved);
+    }
+
+
+    // ------------------- UPDATE BOOK -------------------
+    @CachePut(value = "BOOKS_CACHE", key = "#result.bookId")
+    public booksDTO updateBooks(booksDTO booksDTO) {
+        if (!booksRepo.existsById(booksDTO.getBookId())) return null;
+
+        books saved = booksRepo.save(mapToEntity(booksDTO));
+        return mapToDTO(saved);
+    }
+
+    // ------------------- DELETE BOOK -------------------
     @CacheEvict(value = "BOOKS_CACHE", key = "#bookID")
     public String deleteBook(int bookID) {
-        if (booksRepo.existsById(bookID)) {
-            booksRepo.deleteById(bookID);
-            return varList.RSP_SUCCESS;
-        } else {
-            return varList.RSP_NO_DATA_FOUND;
-        }
+        if (!booksRepo.existsById(bookID)) return varList.RSP_NO_DATA_FOUND;
+
+        booksRepo.deleteById(bookID);
+        return varList.RSP_SUCCESS;
+    }
+
+    // ------------------- HELPER METHODS -------------------
+    private booksDTO mapToDTO(books b) {
+        booksDTO dto = new booksDTO();
+        dto.setBookId(b.getBookId());
+        dto.setIsbn(b.getIsbn());
+        dto.setTitle(b.getTitle());
+        dto.setAuthor(b.getAuthor());
+        dto.setPublisher(b.getPublisher());
+        dto.setYearPublished(b.getYearPublished());
+        dto.setGenre(b.getGenre());
+        dto.setCopiesTotal(b.getCopiesTotal());
+        dto.setCopiesAvailable(b.getCopiesAvailable());
+        return dto;
+    }
+
+    private books mapToEntity(booksDTO dto) {
+        books b = new books();
+        b.setBookId(dto.getBookId());
+        b.setIsbn(dto.getIsbn());
+        b.setTitle(dto.getTitle());
+        b.setAuthor(dto.getAuthor());
+        b.setPublisher(dto.getPublisher());
+        b.setYearPublished(dto.getYearPublished());
+        b.setGenre(dto.getGenre());
+        b.setCopiesTotal(dto.getCopiesTotal());
+        b.setCopiesAvailable(dto.getCopiesAvailable());
+        return b;
     }
 }

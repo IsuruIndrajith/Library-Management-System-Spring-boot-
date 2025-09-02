@@ -1,8 +1,6 @@
 package com.example.LibraryManagementSystem.dto;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,13 +9,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class booksDTO {
-    private int book_id;
+
+
+    private Integer bookId;
+
     private String isbn;
     private String title;
     private String author;
     private String publisher;
-    private int year_published;
+
+    private Integer yearPublished;
+
     private String genre;
-    private int copies_total;
-    private int copies_available;
+
+    @JsonProperty("copies_total")
+    private Integer copiesTotal;
+
+    @JsonProperty("copies_available")
+    private Integer copiesAvailable;
 }

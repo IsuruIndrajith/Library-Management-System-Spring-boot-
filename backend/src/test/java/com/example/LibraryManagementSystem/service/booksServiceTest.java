@@ -5,20 +5,20 @@ import com.example.LibraryManagementSystem.entity.books;
 import com.example.LibraryManagementSystem.repo.booksRepo;
 import com.example.LibraryManagementSystem.util.varList;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 
 @ExtendWith(MockitoExtension.class)
 class booksServiceTest {
@@ -26,37 +26,34 @@ class booksServiceTest {
     @Mock
     booksRepo booksRepo;
 
-    @Mock
-    ModelMapper modelMapper;
-
     @InjectMocks
     booksService booksService;
 
     private booksDTO getSampleDTO() {
         booksDTO dto = new booksDTO();
-        dto.setBook_id(1);
+        dto.setBookId(1);
         dto.setAuthor("Isuru");
         dto.setIsbn("479512567");
         dto.setTitle("H20");
         dto.setPublisher("ISURU");
-        dto.setYear_published(2001);
+        dto.setYearPublished(2001);
         dto.setGenre("programming");
-        dto.setCopies_available(4);
-        dto.setCopies_total(5);
+        dto.setCopiesAvailable(4);
+        dto.setCopiesTotal(5);
         return dto;
     }
 
     private books getSampleEntity() {
         books entity = new books();
-        entity.setBook_id(1);
+        entity.setBookId(1);
         entity.setAuthor("Isuru");
         entity.setIsbn("479512567");
         entity.setTitle("H20");
         entity.setPublisher("ISURU");
-        entity.setYear_published(2001);
+        entity.setYearPublished(2001);
         entity.setGenre("programming");
-        entity.setCopies_available(4);
-        entity.setCopies_total(5);
+        entity.setCopiesAvailable(4);
+        entity.setCopiesTotal(5);
         return entity;
     }
 
@@ -66,28 +63,42 @@ class booksServiceTest {
     @Test
     void saveBookShouldSaveWhenBookDoesNotExist() {
         booksDTO dto = getSampleDTO();
-        books entity = getSampleEntity();
+        dto.setBookId(null); // For new book, ID should be null
+        books savedEntity = getSampleEntity();
 
-        Mockito.when(booksRepo.existsById(dto.getBook_id())).thenReturn(false);
-        Mockito.when(modelMapper.map(dto, books.class)).thenReturn(entity);
-        Mockito.when(booksRepo.save(any(books.class))).thenReturn(entity);
-        Mockito.when(modelMapper.map(entity, booksDTO.class)).thenReturn(dto);
+        Mockito.when(booksRepo.save(any(books.class))).thenReturn(savedEntity);
 
         booksDTO result = booksService.saveBook(dto);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(dto.getBook_id(), result.getBook_id());
+        Assertions.assertEquals(savedEntity.getBookId(), result.getBookId());
+        Assertions.assertEquals(dto.getTitle(), result.getTitle());
+        Assertions.assertEquals(dto.getAuthor(), result.getAuthor());
     }
 
     @Test
     void saveBookShouldReturnNullWhenBookAlreadyExists() {
         booksDTO dto = getSampleDTO();
-        Mockito.when(booksRepo.existsById(dto.getBook_id())).thenReturn(true);
+        Mockito.when(booksRepo.existsById(dto.getBookId())).thenReturn(true);
 
         booksDTO result = booksService.saveBook(dto);
 
         Assertions.assertNull(result);
         Mockito.verify(booksRepo, Mockito.never()).save(any());
+    }
+
+    @Test
+    void saveBookShouldSaveWhenBookIdIsNull() {
+        booksDTO dto = getSampleDTO();
+        dto.setBookId(null);
+        books savedEntity = getSampleEntity();
+
+        Mockito.when(booksRepo.save(any(books.class))).thenReturn(savedEntity);
+
+        booksDTO result = booksService.saveBook(dto);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(savedEntity.getBookId(), result.getBookId());
     }
 
     // ---------------------------------------------------
@@ -96,23 +107,22 @@ class booksServiceTest {
     @Test
     void updateBooksShouldUpdateWhenBookExists() {
         booksDTO dto = getSampleDTO();
-        books entity = getSampleEntity();
+        books savedEntity = getSampleEntity();
 
-        Mockito.when(booksRepo.existsById(dto.getBook_id())).thenReturn(true);
-        Mockito.when(modelMapper.map(dto, books.class)).thenReturn(entity);
-        Mockito.when(booksRepo.save(any(books.class))).thenReturn(entity);
-        Mockito.when(modelMapper.map(entity, booksDTO.class)).thenReturn(dto);
+        Mockito.when(booksRepo.existsById(dto.getBookId())).thenReturn(true);
+        Mockito.when(booksRepo.save(any(books.class))).thenReturn(savedEntity);
 
         booksDTO result = booksService.updateBooks(dto);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(dto.getTitle(), result.getTitle());
+        Assertions.assertEquals(dto.getAuthor(), result.getAuthor());
     }
 
     @Test
     void updateBooksShouldReturnNullWhenBookDoesNotExist() {
         booksDTO dto = getSampleDTO();
-        Mockito.when(booksRepo.existsById(dto.getBook_id())).thenReturn(false);
+        Mockito.when(booksRepo.existsById(dto.getBookId())).thenReturn(false);
 
         booksDTO result = booksService.updateBooks(dto);
 
@@ -126,15 +136,15 @@ class booksServiceTest {
     @Test
     void searchBookShouldReturnDTOWhenFound() {
         books entity = getSampleEntity();
-        booksDTO dto = getSampleDTO();
 
         Mockito.when(booksRepo.findById(1)).thenReturn(Optional.of(entity));
-        Mockito.when(modelMapper.map(entity, booksDTO.class)).thenReturn(dto);
 
         booksDTO result = booksService.searchBook(1);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(dto.getAuthor(), result.getAuthor());
+        Assertions.assertEquals(entity.getAuthor(), result.getAuthor());
+        Assertions.assertEquals(entity.getTitle(), result.getTitle());
+        Assertions.assertEquals(entity.getBookId(), result.getBookId());
     }
 
     @Test
@@ -152,24 +162,28 @@ class booksServiceTest {
     @Test
     void getAllBooksShouldReturnList() {
         books entity = getSampleEntity();
-        booksDTO dto = getSampleDTO();
-
         List<books> entities = new ArrayList<>();
         entities.add(entity);
 
-        List<booksDTO> dtos = new ArrayList<>();
-        dtos.add(dto);
-
         Mockito.when(booksRepo.findAll()).thenReturn(entities);
-        Mockito.when(modelMapper.map(
-                Mockito.eq(entities),
-                Mockito.eq(new TypeToken<ArrayList<booksDTO>>() {}.getType())
-        )).thenReturn(dtos);
 
         List<booksDTO> result = booksService.getAllBooks();
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(entity.getTitle(), result.get(0).getTitle());
+        Assertions.assertEquals(entity.getAuthor(), result.get(0).getAuthor());
+    }
+
+    @Test
+    void getAllBooksShouldReturnEmptyListWhenNoBooks() {
+        List<books> emptyList = new ArrayList<>();
+        Mockito.when(booksRepo.findAll()).thenReturn(emptyList);
+
+        List<booksDTO> result = booksService.getAllBooks();
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(0, result.size());
     }
 
     // ---------------------------------------------------

@@ -1,142 +1,233 @@
-import { Flex, Progress, Slider, Typography, Calendar, theme, Col, Divider, Row, Card } from 'antd';
-import React from 'react' 
+import { Table, Flex, Progress, Typography, Row, Col, Card,
+  Statistic, Badge, Space, DatePicker, Spin } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Area } from '@ant-design/plots';
+import { 
+  UserOutlined, BookOutlined, 
+  SwapOutlined, ClockCircleOutlined 
+} from '@ant-design/icons';
+import { getAllMembers, getBooks } from '../../API';
 
-const onPanelChange = (value, mode) => {
-    console.log(value.format('YYYY-MM-DD'), mode);
-};
-  
 function Reports() {
-  const { token } = theme.useToken();
-  const wrapperStyle = {
-    width: 300,
-    border: `1px solid ${token.colorBorderSecondary}`,
-    borderRadius: token.borderRadiusLG,
+  const [loading, setLoading] = useState(true);
+  const [bookStats, setBookStats] = useState({
+    totalBooks: 0,
+    borrowedBooks: 0,
+    overdueBooks: 0
+  });
+  const [memberStats, setMemberStats] = useState({
+    totalMembers: 0,
+    activeMembers: 0,
+    inactiveMembers: 0
+  });
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [booksData, membersData] = await Promise.all([
+          getBooks(),
+          getAllMembers()
+        ]);
+        
+        // Process books data
+        setBookStats({
+          totalBooks: booksData.length || 0,
+          borrowedBooks: booksData.filter(book => book.borrowed).length || 0,
+          overdueBooks: booksData.filter(book => book.overdue).length || 0
+        });
+
+        // Process members data
+        setMemberStats({
+          totalMembers: membersData.length || 0,
+          activeMembers: membersData.filter(member => member.active).length || 0,
+          inactiveMembers: membersData.filter(member => !member.active).length || 0
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Update the statistics cards to use actual data
+  // Sample data for Area chart
+  const borrowingTrendData = [
+    { date: '2025-01', books: 35 },
+    { date: '2025-02', books: 42 },
+    { date: '2025-03', books: 58 },
+    // Add more data points...
+  ];
+
+  const areaConfig = {
+    data: borrowingTrendData,
+    xField: 'date',
+    yField: 'books',
+    smooth: true,
+    areaStyle: {
+      fill: 'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff',
+    }
   };
 
-  const style = {
-    background: '#f0f2f5',
-    padding: '8px 0',
-    textAlign: 'center',
-    borderRadius: '4px',
-    marginBottom: '8px'
-  };
+  const genreColumns = [
+    {
+      title: 'Genre',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Total Books',
+      dataIndex: 'total',
+      key: 'total',
+    },
+    {
+      title: 'Available',
+      dataIndex: 'available',
+      key: 'available',
+    },
+    {
+      title: 'Borrowed',
+      dataIndex: 'borrowed',
+      key: 'borrowed',
+    }
+  ];
 
-  const [stepsCount, setStepsCount] = React.useState(5);
-  const [stepsGap, setStepsGap] = React.useState(7);
+  const genreData = [
+    { name: 'Fiction', total: 150, available: 100, borrowed: 50 },
+    { name: 'Non-Fiction', total: 120, available: 85, borrowed: 35 },
+    // Add more genres...
+  ];
 
   return (
-    <>
-      <div>
-        <Typography.Title level={3}>Reports & Analysis</Typography.Title>
-        <Divider>Core Genres</Divider>
-        <Row gutter={16}>
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Fiction</div>
-          </Col>
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Non-Fiction</div>
-          </Col>
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Science & Technology</div>
-          </Col>
-          <Col className="gutter-row" span={6}>
-            <div style={style}>History & Politics</div>
-          </Col>
-          
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Arts & Literature</div>
-          </Col>
-          
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Business & Economics</div>
-          </Col>
-          
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Education & References</div>
-          </Col>
-
-          
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Health & Medicine</div>
-          </Col>
-
-          
-          <Col className="gutter-row" span={6}>
-            <div style={style}>Religion & Philosophy</div>
-          </Col>
-
-    
-        </Row>
-      </div>
-
-      <Row gutter={16}>
-      <div style={wrapperStyle}>
-          <Calendar fullscreen={false} onPanelChange={onPanelChange} />
-        <Col span={8}>
-          </Col>
-          
-        
-        </div>
-        
-        <Col span={8}>
-          <Card title="Available vs Borrowed books." variant="borderless" span={6}>
-
-          <Typography.Title level={ 5}>Visual Optimization</Typography.Title>
-      <Typography.Title level={5}>Custom count:</Typography.Title>
-      <Slider min={2} max={10} value={stepsCount} onChange={setStepsCount} />
-      <Typography.Title level={5}>Custom gap:</Typography.Title>
-      <Slider step={4} min={0} max={40} value={stepsGap} onChange={setStepsGap} />
-      <Flex wrap gap="middle" style={{ marginTop: 16 }}>
-        <Progress
-          type="dashboard"
-          steps={8}
-          percent={50}
-          trailColor="rgba(0, 0, 0, 0.06)"
-          strokeWidth={20}
-        />
-        <Progress
-          type="circle"
-          percent={100}
-          steps={{ count: stepsCount, gap: stepsGap }}
-          trailColor="rgba(0, 0, 0, 0.06)"
-          strokeWidth={20}
-        />
-      </Flex>
-    
-          
-
-        </Card>
-        
-          </Col> 
-        
-          
-
-      <div>
-          <Col span={25}>
-        <Card title="Active Members" variant="borderless">
-              <Flex gap="small" wrap>
-                <Progress type="circle" percent={75} />
-                <Progress type="circle" percent={70} status="exception" />
-                <Progress type="circle" percent={100} />
-                
-              </Flex>
-              <span style={{ marginLeft: '8px', marginTop:'8px' }}>
-                <Typography.Title level={5}>Active, inactive and Expired members</Typography.Title>
-              </span>
-      </Card>
-    </Col>
-        
-
-
-      </div>  
-
-        
-
-      </Row>
-
+    <div className="reports-container" style={{ padding: '24px' }}>
+      <Typography.Title level={3}>Library Statistics Dashboard</Typography.Title>
       
-    </>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      ) : (
+        <>
+          {/* Summary Statistics */}
+          <Row gutter={16} style={{ marginBottom: '24px' }}>
+            <Col span={6}>
+              <Card>
+                <Statistic 
+                  title="Total Books"
+                  value={bookStats.totalBooks}
+                  prefix={<BookOutlined />}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card>
+                <Statistic 
+                  title="Active Members"
+                  value={memberStats.activeMembers}
+                  prefix={<UserOutlined />}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card>
+                <Statistic 
+                  title="Books Borrowed"
+                  value={bookStats.borrowedBooks}
+                  prefix={<SwapOutlined />}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card>
+                <Statistic 
+                  title="Overdue Books"
+                  value={bookStats.overdueBooks}
+                  prefix={<ClockCircleOutlined />}
+                  valueStyle={{ color: '#cf1322' }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            {/* Genre-wise Book Distribution */}
+            <Col span={14}>
+              <Card title="Book Distribution by Genre">
+                <Table 
+                  columns={genreColumns} 
+                  dataSource={genreData}
+                  pagination={false}
+                  size="small"
+                />
+              </Card>
+            </Col>
+
+            {/* Member Status */}
+            <Col span={10}>
+              <Card title="Member Status Distribution">
+                <Flex gap="small" vertical>
+                  <Space direction="vertical">
+                    <Badge status="success" text="Active Members" /> 
+                    <Progress percent={75} />
+                    <Badge status="warning" text="Inactive Members" />
+                    <Progress percent={15} />
+                    <Badge status="error" text="Expired Memberships" />
+                    <Progress percent={10} />
+                  </Space>
+                </Flex>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Borrowing Trends */}
+          <Card title="Monthly Borrowing Trends" style={{ marginTop: '24px' }}>
+            <Area {...areaConfig} />
+          </Card>
+
+          {/* Recent Activities */}
+          <Card title="Recent Activities" style={{ marginTop: '24px' }}>
+            <Table 
+              columns={[
+                {
+                  title: 'Date',
+                  dataIndex: 'date',
+                  key: 'date',
+                },
+                {
+                  title: 'Activity',
+                  dataIndex: 'activity',
+                  key: 'activity',
+                },
+                {
+                  title: 'Member',
+                  dataIndex: 'member',
+                  key: 'member',
+                },
+                {
+                  title: 'Book',
+                  dataIndex: 'book',
+                  key: 'book',
+                }
+              ]}
+              dataSource={[
+                {
+                  key: '1',
+                  date: '2025-09-02',
+                  activity: 'Book Borrowed',
+                  member: 'John Doe',
+                  book: 'The Great Gatsby'
+                },
+                // Add more activities...
+              ]}
+            />
+          </Card>
+        </>
+      )}
+    </div>
   );
-};
+}
 
 export default Reports;
