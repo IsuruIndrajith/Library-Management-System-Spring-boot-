@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -160,7 +161,10 @@ class booksServiceTest {
         dtos.add(dto);
 
         Mockito.when(booksRepo.findAll()).thenReturn(entities);
-        Mockito.when(modelMapper.map(entities, ArrayList.class)).thenReturn((ArrayList<booksDTO>) dtos);
+        Mockito.when(modelMapper.map(
+                Mockito.eq(entities),
+                Mockito.eq(new TypeToken<ArrayList<booksDTO>>() {}.getType())
+        )).thenReturn(dtos);
 
         List<booksDTO> result = booksService.getAllBooks();
 
@@ -190,4 +194,7 @@ class booksServiceTest {
         Assertions.assertEquals(varList.RSP_NO_DATA_FOUND, result);
         Mockito.verify(booksRepo, Mockito.never()).deleteById(1);
     }
+
+
+
 }
